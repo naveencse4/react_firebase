@@ -6,7 +6,13 @@ import reportWebVitals from "./reportWebVitals";
 import { createStore, applyMiddleware, compose } from "redux";
 import { Provider } from "react-redux";
 import thunk from "redux-thunk";
-import { reduxFirestore, getFirestore } from "redux-firestore";
+import firebase from "firebase/app";
+import "firebase/firestore";
+import {
+  reduxFirestore,
+  getFirestore,
+  createFirestoreInstance,
+} from "redux-firestore";
 import { getFirebase, ReactReduxFirebaseProvider } from "react-redux-firebase";
 import fbConfig from "./config/firebaseConfig";
 
@@ -20,10 +26,24 @@ const store = createStore(
   )
 );
 
+const rrfConfig = {
+  userProfile: "users",
+  useFirestoreForProfile: true,
+};
+
+const rrfProps = {
+  firebase,
+  config: rrfConfig,
+  dispatch: store.dispatch,
+  createFirestoreInstance,
+};
+
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <ReactReduxFirebaseProvider {...rrfProps}>
+        <App />
+      </ReactReduxFirebaseProvider>
     </Provider>
   </React.StrictMode>,
   document.getElementById("root")
