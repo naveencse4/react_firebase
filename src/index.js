@@ -4,7 +4,7 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { createStore, applyMiddleware, compose } from "redux";
-import { Provider } from "react-redux";
+import { Provider, useSelector } from "react-redux";
 import thunk from "redux-thunk";
 import firebase from "firebase/app";
 import "firebase/firestore";
@@ -13,7 +13,11 @@ import {
   getFirestore,
   createFirestoreInstance,
 } from "redux-firestore";
-import { getFirebase, ReactReduxFirebaseProvider } from "react-redux-firebase";
+import {
+  getFirebase,
+  ReactReduxFirebaseProvider,
+  isLoaded,
+} from "react-redux-firebase";
 import fbConfig from "./config/firebaseConfig";
 
 import rootReducer from "./store/reducers/rootReducer";
@@ -25,6 +29,12 @@ const store = createStore(
     reduxFirestore(fbConfig)
   )
 );
+
+const AuthIsLoaded = ({ children }) => {
+  const auth = useSelector((state) => state.firebase.auth);
+  if (!isLoaded(auth)) return <div></div>;
+  return children;
+};
 
 const rrfConfig = {
   userProfile: "users",
@@ -42,7 +52,9 @@ ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
       <ReactReduxFirebaseProvider {...rrfProps}>
-        <App />
+        <AuthIsLoaded>
+          <App />
+        </AuthIsLoaded>
       </ReactReduxFirebaseProvider>
     </Provider>
   </React.StrictMode>,
